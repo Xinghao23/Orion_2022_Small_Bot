@@ -1,5 +1,5 @@
 #include "main.h"
-using namespace pros;
+using namespace std;
 
 Motor leftFront(3);
 Motor leftBack(2); 
@@ -13,44 +13,45 @@ Motor converyer(1);
 Motor leftArmMotor(15);
 Motor rightArmMotor(16);
 Controller master(E_CONTROLLER_MASTER);
-ADIDigitalOut clamp(8);
+ADIDigitalOut clamper(8);
 ADIDigitalOut pull(7);
 ADIDigitalOut claw(1);
+ADIEncoder verticalTracking({4,3,4}, false);
+ADIEncoder horizontalTracking({4,1,2},false);
+Imu imu(5); 
+Odom odom(&imu, &horizontalTracking, &verticalTracking);
 
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
+void odom_task(void* param) {
+	//*
+	delay(50);
+	printf("Initializing Odometry...\n");
+	//* comp:
+	odom.configure_starting(Vector2D(0,0), 0);
+	odom.configure(4.3, 20, 4.3, 0, 20);
+	//*/
+	/* skills: 
+	odom.configure_starting(Vector2D(0,0), 0);
+	odom.configure(8.25, 20, 3.22, 20, 20);
+	//*/
+	printf("waiting for imu to initialize...\n");
+	while (imu.is_calibrating() == true) {}
+	printf("Initialization complete\n");
+
+	while (true) {
+		odom.calculate_position(ODOM_DEBUG_GLOBAL_POSITION);
 	}
+	//*/
 }
 
-/**
- * Runs initialization code. This occurs as soon as the program is started.
- *
- * All other competition modes are blocked by initialize; it is recommended
- * to keep execution time for this mode under a few seconds.
- */
+Task task_odom (odom_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT, "ODOM");
+
+
+
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
-
-	pros::lcd::register_btn1_cb(on_center_button);
 }
 
-/**
- * Runs while the robot is in the disabled state of Field Management System or
- * the VEX Competition Switch, following either autonomous or opcontrol. When
- * the robot is enabled, this task will exit.
- */
+
 void disabled() {}
 
 /**
@@ -94,20 +95,16 @@ void opcontrol() {
 	int mogo_state = 0;
 	bool claw_state = true; 
 	double start_time = 0;
-	
+	verticalTracking.reset(); 
+	horizontalTracking.reset();
 	while (true) {
+		lcd::print(0,"Your mom is: %d", verticalTracking.get_value());
+		lcd::print(1,"Your dad is: %d", horizontalTracking.get_value());
 		double rightY = master.get_analog(ANALOG_RIGHT_Y);
 		double rightX = master.get_analog(ANALOG_RIGHT_X);
 		double leftY = master.get_analog(ANALOG_LEFT_Y);
 
-		leftFront = rightY + rightX;
-		leftMid = rightY + rightX;
-		leftBack = -rightY - rightX;
-		leftTop =  -rightY - rightX;
-		rightFront = -rightY + rightX;
-		rightMid = -rightY + rightX;
-		rightBack = rightY - rightX;
-		rightTop = rightY - rightX;
+		//drivePower(rightY, rightX);
 		leftArmMotor = -leftY;
 		rightArmMotor = leftY;
 		if(master.get_digital(DIGITAL_L1) == 1){
@@ -119,6 +116,13 @@ void opcontrol() {
 		else{
 			converyer = 0;
 		}
+		if(master.get_digital(DIGITAL_A) == 1){
+			drivePower(0,40);
+		}
+		else{
+			drivePower(0,0);
+		}
+		
 
 		if(master.get_digital_new_press(DIGITAL_R1) == 1){
 			claw_state = !claw_state;
@@ -140,7 +144,7 @@ void opcontrol() {
 
 		switch (mogo_state) {
 			case 0 :
-			clamp.set_value(0);
+			clamper.set_value(0);
 			if ((millis() - start_time) > 200) mogo_state = 1;
 			break;
 			case 1 :
@@ -151,11 +155,12 @@ void opcontrol() {
 			if ((millis() - start_time) > 200) mogo_state = 3;
 			break;
 			case 3 :
-			clamp.set_value(1);
+			clamper.set_value(1);
 			break;
 		}
 
 	
-	
+	delay(20);
+		
 	}
 }

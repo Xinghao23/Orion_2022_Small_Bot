@@ -36,6 +36,7 @@
 
 #include "api.h"
 #include "ORION/ORION_includes.hpp"
+#include "auto_functions.hpp"
 using namespace pros;
 /**
  * You should add more #includes here
@@ -91,6 +92,34 @@ extern pros::Motor leftArmMotor;
 extern pros::Motor rightArmMotor;
 extern pros::Controller master; 
 extern pros::ADIDigitalOut pull; 
-extern pros::ADIDigitalOut clamp; 
+extern pros::ADIDigitalOut clamper; 
 extern pros::ADIDigitalOut claw;
+extern pros::Imu imu;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+extern Odom odom;
 #endif  // _PROS_MAIN_H_
