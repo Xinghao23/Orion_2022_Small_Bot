@@ -37,6 +37,7 @@
 #include "api.h"
 #include "ORION/ORION_includes.hpp"
 #include "auto_functions.hpp"
+#include "auto.hpp"
 using namespace pros;
 /**
  * You should add more #includes here
@@ -94,6 +95,8 @@ extern pros::Controller master;
 extern pros::ADIDigitalOut pull; 
 extern pros::ADIDigitalOut clamper; 
 extern pros::ADIDigitalOut claw;
+extern pros::ADIDigitalOut blocker;
+extern pros::ADIDigitalIn frontMogoChecker;
 extern pros::Imu imu;
 
 
