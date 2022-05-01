@@ -13,4 +13,6 @@ void setArm_Height(double height);
 void grabMogo();
 void move(double target, PIDConstants y_k, PIDConstants t_k, double timeout, double accuracy, double max);
 void grab_goal();
+
+void move_to_point(Vector2D target, int direction, double accuracy, double max, double timeout, PIDConstants y_k, PIDConstants t_k);
 #endif

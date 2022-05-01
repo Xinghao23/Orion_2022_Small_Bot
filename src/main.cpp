@@ -85,26 +85,16 @@ void competition_initialize() {
  * from where it left off.
  */
 void autonomous() {
-	//blocker.set_value(1);
-	
+	//*
 	grabMogo();
-	// drivePower(50, 0);
-	// delay(500);
-	// drivePower(0,0);
-	//areWeThereYet(Vector2D(0,100), FORWARD, 2000, 2);
-	//while (true) {
-	//	driveToPoint(Vector2D(0, 20));
-	//	delay(20);
-	//}
-	
 	PIDConstants y_k(3,0,8);
 	PIDConstants t_k(2,0,8);
-	areWeThereYet(Vector2D(0,0), BACKWARD, 10000,5);
+	areWeThereYet(Vector2D(0,0), BACKWARD, 5000,5);
 	delay(300);
 	blocker.set_value(0);
 	setArm_Height(1700);
 	delay(750);
-	areWeThereYet(Vector2D(-25, -40), FORWARD, 10000, 5);
+	areWeThereYet(Vector2D(-25, -40), FORWARD, 2000, 6);
 	delay(500);
 	turn(-96, t_k, 3000, 1, 40);
 	delay(500);
@@ -116,13 +106,12 @@ void autonomous() {
 	move(1200, y_k, t_k, 5000, 5, 40);
 	turn(90, t_k, 3000, 1, 40);
 	move(2000, y_k, t_k, 10000, 5, 100);
-	/*
-	quadratic_bezi_curve target;
-	target.set_points(Vector2D(0,0), Vector2D(0, 100), Vector2D(100, 100));
-	benziDriveToPoint(target, FORWARD, PIDConstants(10, 0, 30), PIDConstants(5, 0, 30), 100);
-	target.set_points(Vector2D(100,100), Vector2D(0, 100), Vector2D(0, 0));
-	benziDriveToPoint(target, BACKWARD, PIDConstants(10, 0, 30), PIDConstants(5, 0, 30), 100);
-	*/
+	//*/
+
+	PIDConstants y_k1(4,0.3,20);
+	PIDConstants t_k1(3,0.01,10);
+	move_to_point(Vector2D(0,100), FORWARD, 5, 100, 50000, y_k1, t_k1);
+
 }
 
 /**
@@ -146,8 +135,8 @@ void opcontrol() {
 	//verticalTracking.reset(); 
 	//horizontalTracking.reset();
 	while (true) {
-		lcd::print(0,"Your mom is: %f", odom.getPosition().x);
-		lcd::print(1,"Your dad is: %f", odom.getPosition().y);
+		lcd::print(0,"X: %f", odom.getPosition().x);
+		lcd::print(1,"Y: %f", odom.getPosition().y);
 		double rightY = master.get_analog(ANALOG_RIGHT_Y);
 		double rightX = master.get_analog(ANALOG_RIGHT_X);
 		double leftY = master.get_analog(ANALOG_LEFT_Y);

@@ -13,6 +13,8 @@ void drivePower(double forwardPower, double turningPower){
 	rightBack = forwardPower - turningPower;
 	rightTop = forwardPower - turningPower;
 }
+
+
 void benziDriveToPoint(quadratic_bezi_curve target, int direction, PIDConstants y_k, PIDConstants t_k, double velocity){
     PID y_PID;
     PID t_PID;
@@ -53,7 +55,6 @@ void benziDriveToPoint(quadratic_bezi_curve target, int direction, PIDConstants 
     while (runtime_timer.delta_time() < runtime_ms) {
         bezi_input = runtime_timer.delta_time() / runtime_ms;
         vectorTarget = target.getCurve(bezi_input);
-        //driveToPoint(vectorTarget); 
         robotSpaceTarget = vectorTarget.getHeadingBased(odom.rad_angle());
         y_PID.set_target(robotSpaceTarget.y);
 
@@ -195,6 +196,50 @@ void grab_goal() {
     clamper.set_value(0);
     delay(300);
     pull.set_value(1);
+}
+
+void move_to_point(Vector2D target, int direction, double accuracy, double max, double timeout, PIDConstants y_k, PIDConstants t_k) {
+    Vector2D error = target - odom.getPosition();
+    Vector2D local_current = odom.getPosition().getHeadingBased(odom.rad_angle());
+    Vector2D local_target = target.getHeadingBased(odom.rad_angle());
+    bool exit = false;
+    Timer exit_timer;
+    Timer timeout_timer;
+
+    PID yPID;
+    yPID.set_constants(y_k);
+    yPID.set_variables(local_target.y, max, -max, 15);
+
+    PID tPID;
+    tPID.set_constants(t_k);
+    tPID.set_variables(local_target.x, max, -max, 2);
+
+    while (exit == false && timeout_timer.delta_time() < timeout) {
+        error = target - odom.getPosition();
+        local_current = odom.getPosition().getHeadingBased(odom.rad_angle());
+        local_target = target.getHeadingBased(odom.rad_angle());
+
+        yPID.set_target(local_target.y);
+        tPID.set_target(local_target.x);
+
+        if (direction == FORWARD)
+            drivePower(yPID.output(local_current.y), tPID.output(local_current.x));
+        else 
+            drivePower(yPID.output(local_current.y), tPID.output(local_current.x) * -1);
+
+        if (error.getLength() < accuracy) {
+            if (exit_timer.delta_time() > 500) {
+                exit = true;
+            }
+        }
+        else {
+            exit_timer.reset();
+        }
+
+        delay(20);
+    }
+
+    drivePower(0,0);
 }
 
 /*void driveForward(double target){
