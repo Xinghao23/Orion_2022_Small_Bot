@@ -94,7 +94,9 @@ void autonomous() {
 	blocker.set_value(0);
 	setArm_Height(1700);
 	delay(750);
-	areWeThereYet(Vector2D(-25, -40), FORWARD, 2000, 6);
+	PIDConstants y_k1(4,0.3,20);
+	PIDConstants t_k1(3,0.01,10);
+	move_to_point(Vector2D(-10,-45), FORWARD, 5, 50, 1500, y_k1, t_k1);
 	delay(500);
 	turn(-96, t_k, 3000, 1, 40);
 	delay(500);
@@ -105,12 +107,12 @@ void autonomous() {
 	turn(-30, t_k, 3000, 1, 40);
 	move(1200, y_k, t_k, 5000, 5, 40);
 	turn(90, t_k, 3000, 1, 40);
-	move(2000, y_k, t_k, 10000, 5, 100);
+	move(2000, y_k, t_k, 10000, 5, 60);
 	//*/
 
-	PIDConstants y_k1(4,0.3,20);
-	PIDConstants t_k1(3,0.01,10);
-	move_to_point(Vector2D(0,100), FORWARD, 5, 100, 50000, y_k1, t_k1);
+	//PIDConstants y_k1(4,0.3,20);
+	//PIDConstants t_k1(3,0.01,10);
+	//move_to_point(Vector2D(0,100), FORWARD, 5, 100, 50000, y_k1, t_k1);
 
 }
 
